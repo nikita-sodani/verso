@@ -5,10 +5,12 @@ import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Search, MoreHorizontal, Trash2, Bookmark, Archive } from "lucide-react";
 import type { LibraryItem } from "@/lib/types";
-import { listItems, saveItem, deleteItem } from "@/lib/storage";
+import { listItems } from "@/lib/storage";
+import { saveItem, deleteItem } from "@/lib/sync";
 import { Sidebar } from "./Sidebar";
 import { Thumb } from "./Thumb";
 import { AddDialog } from "./AddDialog";
+import { AuthButton } from "./AuthButton";
 
 type Filter = "all" | "articles" | "pdfs" | "bookmarked" | "archived";
 
@@ -26,6 +28,13 @@ export function LibraryGrid() {
 
   async function load() { setItems(await listItems()); }
   useEffect(() => { load(); }, []);
+
+  // Refresh whenever the sync layer pulls or realtime fires.
+  useEffect(() => {
+    function onSync() { load(); }
+    window.addEventListener("verso:sync", onSync);
+    return () => window.removeEventListener("verso:sync", onSync);
+  }, []);
 
   const filtered = useMemo(() => {
     if (!items) return [];
@@ -62,6 +71,7 @@ export function LibraryGrid() {
           <button className="btn btn-primary" onClick={() => setAdding(true)}>
             <Plus size={14} /> Add
           </button>
+          <AuthButton />
         </div>
 
         <div className="flex gap-6 border-b line mb-5 text-[13px]">

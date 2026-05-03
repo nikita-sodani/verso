@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Highlighter, Settings as SettingsIcon, MoreHorizontal, Bookmark } from "lucide-react";
 import type { ArticleBody, Highlight, HighlightColor, LibraryItem, Settings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/types";
+import { getItem, getArticleBody, getSettings, listHighlights } from "@/lib/storage";
 import {
-  getItem, getArticleBody, getSettings, saveSettings, listHighlights,
-  saveHighlight, deleteHighlight, saveItem,
-} from "@/lib/storage";
+  saveSettings, saveHighlight, deleteHighlight, saveItem,
+} from "@/lib/sync";
 import { applyHighlights, buildHighlightFromSelection } from "@/lib/highlights";
 import { safeHostname } from "@/lib/util";
 import { SettingsPopover } from "./SettingsPopover";
@@ -33,7 +33,7 @@ export function Reader({ id }: { id: string }) {
   // Load item + settings + highlights
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    async function load() {
       const [it, s, hs] = await Promise.all([getItem(id), getSettings(), listHighlights(id)]);
       if (!mounted) return;
       setItem(it ?? null);
@@ -44,8 +44,11 @@ export function Reader({ id }: { id: string }) {
         if (mounted) setBody(b ?? null);
       }
       applyTheme(s);
-    })();
-    return () => { mounted = false; };
+    }
+    load();
+    function onSync() { load(); }
+    window.addEventListener("verso:sync", onSync);
+    return () => { mounted = false; window.removeEventListener("verso:sync", onSync); };
   }, [id]);
 
   // Apply theme/typography on settings change

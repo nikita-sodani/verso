@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, FileUp, X, Loader2 } from "lucide-react";
-import { saveItem, saveArticleBody, savePdfBody } from "@/lib/storage";
+import { savePdfBody } from "@/lib/storage";
+import { saveItem, saveArticleBody } from "@/lib/sync";
+import { uploadPdf } from "@/lib/pdfStorage";
 import { uid, estimateReadMinutes } from "@/lib/util";
 import type { LibraryItem } from "@/lib/types";
 
@@ -79,7 +81,10 @@ export function AddDialog({ open, onClose }: { open: boolean; onClose: () => voi
         updatedAt: Date.now(),
       };
       await saveItem(item);
+      // Always cache locally for instant reads.
       await savePdfBody({ itemId: id, blob: file });
+      // If signed in, also persist to Supabase Storage.
+      try { await uploadPdf(id, file); } catch (e) { console.warn(e); }
       onClose();
       router.push(`/read/${id}`);
     } catch (err: any) {

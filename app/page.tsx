@@ -25,7 +25,7 @@ export default function Landing() {
             </Link>
             <a href="#features" className="btn btn-outline">How it works</a>
           </div>
-          <div className="mt-7 text-[12px] muted">No account needed. Your library lives on your device.</div>
+          <div className="mt-7 text-[12px] muted">Sign in once. Your library and highlights follow you across devices.</div>
         </div>
 
         <HeroPreview />

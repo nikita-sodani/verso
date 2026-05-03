@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { listItems, listHighlights, deleteHighlight } from "@/lib/storage";
+import { listItems, listHighlights } from "@/lib/storage";
+import { deleteHighlight } from "@/lib/sync";
 import type { Highlight, LibraryItem } from "@/lib/types";
 import { HIGHLIGHT_META } from "@/lib/types";
 import { Trash2 } from "lucide-react";

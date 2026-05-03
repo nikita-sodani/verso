@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeBootstrap } from "@/components/ThemeBootstrap";
+import { SyncBoot } from "@/components/SyncBoot";
 
 export const metadata: Metadata = {
   title: "Verso — A calm, intelligent reading space",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeBootstrap />
+        <SyncBoot />
         {children}
       </body>
     </html>

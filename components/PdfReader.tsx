@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPdfBody } from "@/lib/storage";
+import { loadPdfBlob } from "@/lib/pdfStorage";
 
 export function PdfReader({ itemId }: { itemId: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -9,9 +9,9 @@ export function PdfReader({ itemId }: { itemId: string }) {
   useEffect(() => {
     let revoke: string | null = null;
     (async () => {
-      const body = await getPdfBody(itemId);
-      if (!body) return;
-      const u = URL.createObjectURL(body.blob);
+      const blob = await loadPdfBlob(itemId);
+      if (!blob) return;
+      const u = URL.createObjectURL(blob);
       revoke = u;
       setUrl(u);
     })();

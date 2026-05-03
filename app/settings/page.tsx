@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { getSettings, saveSettings, listItems } from "@/lib/storage";
+import { getSettings, listItems } from "@/lib/storage";
+import { saveSettings } from "@/lib/sync";
 import type { FontMode, LibraryItem, Settings, ThemeId } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/types";
 
@@ -112,8 +113,8 @@ export default function SettingsPage() {
         <div className="mt-10 max-w-[640px]">
           <div className="font-serif text-[16px] font-semibold mb-2">Your data</div>
           <p className="muted text-[13px] leading-[1.6]">
-            Verso stores your library and highlights in your browser. No account, no cloud.
-            Clear your browser data and your reads will be gone — export anything you want to keep.
+            Sign in and your library, highlights, and reading settings sync across devices.
+            Reads stay cached locally so the app stays fast — and works offline once they&rsquo;re open.
           </p>
         </div>
       </main>
