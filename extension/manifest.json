@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Verso",
+  "description": "Save any article to your Verso library with one click.",
+  "version": "1.0.0",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_title": "Save to Verso"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
