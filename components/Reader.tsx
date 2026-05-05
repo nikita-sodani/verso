@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Highlighter, Settings as SettingsIcon, MoreHorizontal, Bookmark } from "lucide-react";
+import { ArrowLeft, Highlighter, Settings as SettingsIcon, MoreHorizontal, Bookmark, ExternalLink, Archive, Trash2 } from "lucide-react";
 import type { ArticleBody, Highlight, HighlightColor, LibraryItem, Settings } from "@/lib/types";
 import { DEFAULT_SETTINGS } from "@/lib/types";
 import { getItem, getArticleBody, getSettings, listHighlights } from "@/lib/storage";
 import {
-  saveSettings, saveHighlight, deleteHighlight, saveItem,
+  saveSettings, saveHighlight, deleteHighlight, saveItem, deleteItem,
 } from "@/lib/sync";
 import { applyHighlights, buildHighlightFromRange } from "@/lib/highlights";
 import { safeHostname } from "@/lib/util";
@@ -25,6 +25,7 @@ export function Reader({ id }: { id: string }) {
   const [settings, setSettingsState] = useState<Settings>(DEFAULT_SETTINGS);
   const [hlOpen, setHlOpen] = useState(true);
   const [setOpen, setSetOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const articleRef = useRef<HTMLDivElement>(null);
@@ -123,6 +124,21 @@ export function Reader({ id }: { id: string }) {
     setItem(next);
   }, [item]);
 
+  const onToggleArchive = useCallback(async () => {
+    if (!item) return;
+    const next = { ...item, archived: !item.archived, updatedAt: Date.now() };
+    await saveItem(next);
+    setItem(next);
+    setMoreOpen(false);
+  }, [item]);
+
+  const onDeleteArticle = useCallback(async () => {
+    if (!item) return;
+    if (!confirm(`Delete "${item.title}"?\nThis cannot be undone.`)) return;
+    await deleteItem(item.id);
+    router.push("/library");
+  }, [item, router]);
+
   const subtitle = useMemo(() => {
     if (!item) return "";
     const parts = [item.byline, item.readMinutes ? `${item.readMinutes} min read` : null, item.wordCount ? `${item.wordCount.toLocaleString()} words` : null]
@@ -176,9 +192,47 @@ export function Reader({ id }: { id: string }) {
               </button>
               <SettingsPopover open={setOpen} onClose={() => setSetOpen(false)} settings={settings} onChange={onSettings} />
             </div>
-            <button className="btn btn-ghost h-9 w-9 p-0 justify-center muted" aria-label="More">
-              <MoreHorizontal size={15} />
-            </button>
+            <div className="relative">
+              <button
+                className="btn btn-ghost h-9 w-9 p-0 justify-center muted"
+                aria-label="More"
+                onClick={() => setMoreOpen((v) => !v)}
+              >
+                <MoreHorizontal size={15} />
+              </button>
+              {moreOpen && (
+                <>
+                  {/* Backdrop to close on outside click */}
+                  <div className="fixed inset-0 z-30" onClick={() => setMoreOpen(false)} />
+                  <div className="absolute right-0 top-10 surface border line rounded-[10px] text-[12.5px] py-1 z-40 shadow-lg w-44">
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-black/[0.04] text-left"
+                        onClick={() => setMoreOpen(false)}
+                      >
+                        <ExternalLink size={13} /> Open original
+                      </a>
+                    )}
+                    <button
+                      className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-black/[0.04] text-left"
+                      onClick={onToggleArchive}
+                    >
+                      <Archive size={13} /> {item.archived ? "Unarchive" : "Archive"}
+                    </button>
+                    <div className="my-1 h-px bg-current opacity-10" />
+                    <button
+                      className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-black/[0.04] text-left text-red-600"
+                      onClick={onDeleteArticle}
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

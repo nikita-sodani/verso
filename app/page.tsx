@@ -39,7 +39,7 @@ export default function Landing() {
           <Feature icon={<FileText size={16} />} title="Upload PDFs"
             body="Drop in a PDF and read it like a book. Highlights and bookmarks travel with the file." />
           <Feature icon={<Highlighter size={16} />} title="Meaningful highlights"
-            body="Mark passages by intent — Key idea, Insight, Important, Question. Find them all in one place." />
+            body="Mark passages by intent — Key idea, Insight, Important, Question. Everything syncs across your devices the moment you save." />
         </div>
       </section>
 
@@ -58,7 +58,7 @@ export default function Landing() {
           Bring your reading home.
         </h2>
         <p className="muted max-w-[520px] mx-auto mb-6 text-[15px]">
-          Verso is free to use. Open it in your browser, save it to your home screen, and start reading better today.
+          Verso is free to use. Sign in with Google or email and your library, highlights, and reading progress sync instantly across every device.
         </p>
         <Link href="/library" className="btn btn-primary mx-auto">
           Open Verso <ArrowRight size={14} />
