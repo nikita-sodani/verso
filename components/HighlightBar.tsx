@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useState } from "react";
-import { Bookmark } from "lucide-react";
 import type { HighlightColor } from "@/lib/types";
 import { HIGHLIGHT_META } from "@/lib/types";
 
@@ -19,22 +18,57 @@ export function HighlightBar({
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   useLayoutEffect(() => {
+    let mouseDown = false;
+
     function update() {
+      // Don't reposition while the user is still dragging
+      if (mouseDown) return;
+
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || sel.rangeCount === 0) { setPos(null); return; }
+
       const range = sel.getRangeAt(0);
       const root = containerRef.current;
       if (!root || !root.contains(range.commonAncestorContainer)) { setPos(null); return; }
+
       const rect = range.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) { setPos(null); return; }
-      const top = rect.top + window.scrollY - 50;
-      const left = rect.left + rect.width / 2 + window.scrollX;
+
+      // Position relative to the scrollable <main> container, not the window.
+      // main has `position: relative`, so absolute children are offset from its top-left.
+      const scrollEl = root.closest("main") ?? root.parentElement;
+      const scrollElRect = scrollEl?.getBoundingClientRect() ?? { top: 0, left: 0 };
+      const scrollTop = scrollEl?.scrollTop ?? 0;
+      const scrollLeft = scrollEl?.scrollLeft ?? 0;
+
+      const top = rect.top - scrollElRect.top + scrollTop - 48;
+      const left = rect.left - scrollElRect.left + scrollLeft + rect.width / 2;
+
       setPos({ top, left });
     }
+
+    function onPointerDown() {
+      mouseDown = true;
+      // Don't call setPos(null) here — selectionchange handles it when the
+      // selection collapses. If the user clicked the toolbar, e.preventDefault()
+      // keeps the selection alive until onClick fires.
+    }
+
+    function onPointerUp() {
+      mouseDown = false;
+      // Small delay so the selection finalises before we measure
+      requestAnimationFrame(update);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
     document.addEventListener("selectionchange", update);
     window.addEventListener("scroll", update, true);
     window.addEventListener("resize", update);
+
     return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
       document.removeEventListener("selectionchange", update);
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
@@ -47,7 +81,7 @@ export function HighlightBar({
     <div
       className="hl-toolbar absolute z-40 flex items-center gap-1.5 px-2.5 py-1.5 -translate-x-1/2 no-select"
       style={{ top: pos.top, left: pos.left }}
-      onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={(e) => e.preventDefault()} // prevent selection loss on click
     >
       {COLORS.map((c) => (
         <button
@@ -66,13 +100,6 @@ export function HighlightBar({
         className="h-6 px-2 text-[11px] rounded-md hover:bg-black/[0.05]"
       >
         Copy
-      </button>
-      <button
-        aria-label="Bookmark"
-        onClick={() => onPick("key")}
-        className="h-6 w-6 rounded-md hover:bg-black/[0.05] flex items-center justify-center"
-      >
-        <Bookmark size={12} />
       </button>
     </div>
   );

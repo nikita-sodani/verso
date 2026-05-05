@@ -26,17 +26,20 @@ export function getPlainText(root: HTMLElement): string {
 }
 
 export function rangeToOffsets(root: HTMLElement, range: Range): { start: number; end: number } | null {
-  const nodes = getTextNodes(root);
-  let start = -1, end = -1, acc = 0;
-  for (const n of nodes) {
-    const len = n.nodeValue?.length ?? 0;
-    if (n === range.startContainer) start = acc + range.startOffset;
-    if (n === range.endContainer) end = acc + range.endOffset;
-    acc += len;
-    if (start >= 0 && end >= 0) break;
+  // Use Range.toString() to count characters — this works correctly regardless
+  // of whether startContainer/endContainer is a text node or an element node
+  // (e.g. after triple-click Chrome sets the container to the <p> element).
+  try {
+    const preRange = document.createRange();
+    preRange.selectNodeContents(root);
+    preRange.setEnd(range.startContainer, range.startOffset);
+    const start = preRange.toString().length;
+    const end = start + range.toString().length;
+    if (end <= start) return null;
+    return { start, end };
+  } catch {
+    return null;
   }
-  if (start < 0 || end < 0 || end <= start) return null;
-  return { start, end };
 }
 
 export function buildHighlightFromSelection(
