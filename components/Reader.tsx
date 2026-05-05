@@ -29,6 +29,7 @@ export function Reader({ id }: { id: string }) {
   const [progress, setProgress] = useState(0);
 
   const articleRef = useRef<HTMLDivElement>(null);
+  const pdfRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLElement>(null);
 
   // Load item + settings + highlights
@@ -90,8 +91,10 @@ export function Reader({ id }: { id: string }) {
   }, []);
 
   const onPickColor = useCallback(async (color: HighlightColor, range: Range) => {
-    if (!articleRef.current || !item) return;
-    const h = buildHighlightFromRange(articleRef.current, item.id, color, range);
+    if (!item) return;
+    const root = item.kind === "pdf" ? pdfRef.current : articleRef.current;
+    if (!root) return;
+    const h = buildHighlightFromRange(root, item.id, color, range);
     if (!h) return;
     await saveHighlight(h);
     setHighlights((prev) => [...prev, h]);
@@ -260,10 +263,14 @@ export function Reader({ id }: { id: string }) {
             <div className="muted text-sm py-20 text-center">Loading article…</div>
           )
         ) : (
-          <PdfReader itemId={item.id} />
+          <PdfReader itemId={item.id} containerRef={pdfRef} />
         )}
 
-        <HighlightBar containerRef={articleRef} onPick={onPickColor} onCopy={onCopy} />
+        <HighlightBar
+          containerRef={item.kind === "pdf" ? pdfRef : articleRef}
+          onPick={onPickColor}
+          onCopy={onCopy}
+        />
       </main>
 
       <HighlightsSidebar

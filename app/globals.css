@@ -212,6 +212,30 @@ html.theme-ember .card { background: #FBF4E8; border-color: #E1D3BD; }
 html.theme-night .hl-toolbar { background: #1A1D23; border-color: #2A2D33; }
 html.theme-ember .hl-toolbar { background: #FBF4E8; border-color: #E1D3BD; }
 
+/* PDF.js text layer — invisible but selectable text over canvas */
+.pdf-text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  pointer-events: none;
+}
+.pdf-text-layer span,
+.pdf-text-layer br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  transform-origin: 0% 0%;
+  pointer-events: auto;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.pdf-text-layer ::selection {
+  background: rgba(100, 160, 255, 0.3);
+  color: transparent;
+}
+
 /* Utility */
 .no-select { user-select: none; }
 .divider { height: 1px; background: #E6E3DC; }

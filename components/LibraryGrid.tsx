@@ -59,7 +59,7 @@ export function LibraryGrid() {
       <main className="flex-1 min-h-screen px-5 md:px-10 py-6 md:py-9">
         <div className="flex items-center gap-3 mb-6">
           <h1 className="font-serif text-[28px] font-semibold tracking-tight mr-2">Library</h1>
-          <div className="relative flex-1 max-w-[420px]">
+          <div className="relative w-full max-w-[260px]">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 muted" />
             <input
               className="input pl-8"

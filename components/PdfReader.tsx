@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { loadPdfBlob } from "@/lib/pdfStorage";
 import { PdfViewer } from "./PdfViewer";
 
-export function PdfReader({ itemId }: { itemId: string }) {
+export function PdfReader({
+  itemId,
+  containerRef,
+}: {
+  itemId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  containerRef?: React.RefObject<any>;
+}) {
   const [blob, setBlob] = useState<Blob | null>(null);
 
   useEffect(() => {
@@ -21,7 +28,7 @@ export function PdfReader({ itemId }: { itemId: string }) {
   return (
     <div className="px-3 md:px-6 py-6">
       <div className="max-w-[900px] mx-auto">
-        <PdfViewer blob={blob} />
+        <PdfViewer blob={blob} containerRef={containerRef} />
       </div>
     </div>
   );
