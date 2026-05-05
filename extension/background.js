@@ -1,7 +1,7 @@
 // ─── Config ────────────────────────────────────────────────────────────────
 // Change this to your production URL before publishing.
 // e.g. "https://versoapp.com" or your Vercel URL.
-const VERSO_URL = "https://verso-app.vercel.app";
+const VERSO_URL = "https://read-with-verso.vercel.app";
 
 // ─── Icon (drawn with OffscreenCanvas — no PNG files needed) ───────────────
 function drawIcon(size) {
