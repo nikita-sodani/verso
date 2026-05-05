@@ -109,7 +109,11 @@ mark[data-vs-hl] {
   padding: 0 1px;
   background-color: var(--hl-bg, #FCE7B0);
   color: inherit;
-  cursor: pointer;
+  /* Use text cursor so Chrome doesn't treat marks as clickable objects,
+     which caused it to snap selection to include entire mark spans. */
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 mark[data-hl-color="key"]       { --hl-bg: #FCE7B0; }
 mark[data-hl-color="insight"]   { --hl-bg: #FBD9D2; }
@@ -124,9 +128,10 @@ html.theme-ember mark[data-hl-color="insight"]   { --hl-bg: rgba(229,155,155,0.4
 html.theme-ember mark[data-hl-color="important"] { --hl-bg: rgba(156,183,221,0.45); }
 html.theme-ember mark[data-hl-color="question"]  { --hl-bg: rgba(181,210,168,0.5);  }
 
-/* Selection */
-.prose-verso ::selection { background: rgba(232,201,122,0.45); }
-html.theme-night .prose-verso ::selection { background: rgba(232,201,122,0.25); color: #fff; }
+/* Selection — slightly blue-tinted so it's visually distinct from yellow marks */
+.prose-verso ::selection { background: rgba(100,160,255,0.35); }
+html.theme-night .prose-verso ::selection { background: rgba(100,160,255,0.25); color: #fff; }
+html.theme-ember .prose-verso ::selection { background: rgba(100,160,255,0.3); }
 
 /* Subtle scrollbar */
 .scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
