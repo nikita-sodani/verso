@@ -53,17 +53,30 @@ export function buildHighlightFromSelection(
   if (range.collapsed) return null;
   if (!root.contains(range.commonAncestorContainer)) return null;
 
-  const offsets = rangeToOffsets(root, range);
-  if (!offsets) return null;
-  const full = getPlainText(root);
-  let s = offsets.start;
-  let e = offsets.end;
-  while (s < e && /\s/.test(full[s])) s++;
-  while (e > s && /\s/.test(full[e - 1])) e--;
-  const text = full.slice(s, e);
+  // Get text directly from the range — works correctly even when the
+  // browser sets an element node as startContainer/endContainer (e.g. after
+  // triple-click), and avoids any mismatch between Range.toString() and
+  // the getPlainText() character-offset approach.
+  const text = range.toString().replace(/^\s+|\s+$/g, "");
   if (text.length < 2) return null;
-  const prefix = full.slice(Math.max(0, s - CTX), s);
-  const suffix = full.slice(e, e + CTX);
+
+  // Build prefix/suffix with a fresh range so context is accurate.
+  let prefix = "";
+  let suffix = "";
+  try {
+    const pre = document.createRange();
+    pre.selectNodeContents(root);
+    pre.setEnd(range.startContainer, range.startOffset);
+    const before = pre.toString();
+    prefix = before.slice(Math.max(0, before.length - CTX));
+
+    const post = document.createRange();
+    post.selectNodeContents(root);
+    post.setStart(range.endContainer, range.endOffset);
+    suffix = post.toString().slice(0, CTX);
+  } catch {
+    // context is optional — highlight will still save without it
+  }
 
   return {
     id: uid("h_"),

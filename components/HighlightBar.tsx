@@ -21,42 +21,35 @@ export function HighlightBar({
     let mouseDown = false;
 
     function update() {
-      // Don't reposition while the user is still dragging
       if (mouseDown) return;
-
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || sel.rangeCount === 0) { setPos(null); return; }
-
       const range = sel.getRangeAt(0);
       const root = containerRef.current;
       if (!root || !root.contains(range.commonAncestorContainer)) { setPos(null); return; }
-
       const rect = range.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) { setPos(null); return; }
 
-      // Position relative to the scrollable <main> container, not the window.
-      // main has `position: relative`, so absolute children are offset from its top-left.
+      // Position relative to the scrollable <main> container (which is `position: relative`)
       const scrollEl = root.closest("main") ?? root.parentElement;
       const scrollElRect = scrollEl?.getBoundingClientRect() ?? { top: 0, left: 0 };
       const scrollTop = scrollEl?.scrollTop ?? 0;
       const scrollLeft = scrollEl?.scrollLeft ?? 0;
 
-      const top = rect.top - scrollElRect.top + scrollTop - 48;
+      const top = Math.max(4, rect.top - scrollElRect.top + scrollTop - 48);
       const left = rect.left - scrollElRect.left + scrollLeft + rect.width / 2;
-
       setPos({ top, left });
     }
 
     function onPointerDown() {
       mouseDown = true;
-      // Don't call setPos(null) here — selectionchange handles it when the
-      // selection collapses. If the user clicked the toolbar, e.preventDefault()
-      // keeps the selection alive until onClick fires.
+      // Hide the bar so it doesn't block the user starting a new selection.
+      // Clicks on the toolbar itself stop propagation, so this won't fire for those.
+      setPos(null);
     }
 
     function onPointerUp() {
       mouseDown = false;
-      // Small delay so the selection finalises before we measure
       requestAnimationFrame(update);
     }
 
@@ -81,7 +74,12 @@ export function HighlightBar({
     <div
       className="hl-toolbar absolute z-40 flex items-center gap-1.5 px-2.5 py-1.5 -translate-x-1/2 no-select"
       style={{ top: pos.top, left: pos.left }}
-      onPointerDown={(e) => e.preventDefault()} // prevent selection loss on click
+      onPointerDown={(e) => {
+        // Prevent the document-level onPointerDown from hiding the bar when
+        // the user clicks a colour button, and prevent selection from being cleared.
+        e.stopPropagation();
+        e.preventDefault();
+      }}
     >
       {COLORS.map((c) => (
         <button
@@ -89,7 +87,7 @@ export function HighlightBar({
           aria-label={HIGHLIGHT_META[c].label}
           title={HIGHLIGHT_META[c].label}
           onClick={() => onPick(c)}
-          className="h-6 w-6 rounded-full border border-black/10 hover:scale-110 transition"
+          className="h-6 w-6 rounded-full border border-black/10 hover:scale-110 transition-transform"
           style={{ background: HIGHLIGHT_META[c].bg }}
         />
       ))}

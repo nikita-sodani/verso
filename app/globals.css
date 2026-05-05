@@ -26,6 +26,8 @@ html.theme-night { color-scheme: dark; }
   line-height: var(--reader-lh, 1.7);
   max-width: var(--reader-w, 720px);
   margin: 0 auto;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .prose-verso p { margin: 0 0 1em; }
 .prose-verso h1, .prose-verso h2, .prose-verso h3 {
@@ -71,15 +73,29 @@ html.theme-night .prose-verso code { background: rgba(255,255,255,0.06); }
 .prose-verso hr { border: 0; text-align: center; margin: 2em 0; }
 .prose-verso hr::after { content: "* * *"; letter-spacing: 0.6em; opacity: 0.5; }
 
-/* Drop cap on first paragraph of the article */
-.prose-verso > p:first-of-type::first-letter,
-.prose-verso > div > p:first-of-type::first-letter {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-weight: 600;
-  float: left;
-  font-size: 3.4em;
-  line-height: 0.9;
-  padding: 0.05em 0.12em 0 0;
+/* Drop cap on first paragraph of the article.
+   initial-letter is used instead of float so text selection near the
+   drop cap works correctly (floated pseudo-elements break drag-selection). */
+@supports (initial-letter: 2) {
+  .prose-verso > p:first-of-type::first-letter,
+  .prose-verso > div > p:first-of-type::first-letter {
+    font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    font-weight: 600;
+    initial-letter: 2;
+    margin-right: 0.12em;
+  }
+}
+/* Fallback for browsers without initial-letter (Firefox <130) */
+@supports not (initial-letter: 2) {
+  .prose-verso > p:first-of-type::first-letter,
+  .prose-verso > div > p:first-of-type::first-letter {
+    font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    font-weight: 600;
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.9;
+    padding: 0.05em 0.12em 0 0;
+  }
 }
 
 /* Font modes */
