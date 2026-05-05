@@ -42,25 +42,24 @@ export function rangeToOffsets(root: HTMLElement, range: Range): { start: number
   }
 }
 
-export function buildHighlightFromSelection(
+/**
+ * Build a highlight from an explicit Range object.
+ * Called by the HighlightBar which stores the range the moment the bar
+ * appears — so we never rely on window.getSelection() still being intact
+ * when the colour button is clicked.
+ */
+export function buildHighlightFromRange(
   root: HTMLElement,
   itemId: string,
   color: HighlightColor,
+  range: Range,
 ): Highlight | null {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return null;
-  const range = sel.getRangeAt(0);
   if (range.collapsed) return null;
   if (!root.contains(range.commonAncestorContainer)) return null;
 
-  // Get text directly from the range — works correctly even when the
-  // browser sets an element node as startContainer/endContainer (e.g. after
-  // triple-click), and avoids any mismatch between Range.toString() and
-  // the getPlainText() character-offset approach.
   const text = range.toString().replace(/^\s+|\s+$/g, "");
   if (text.length < 2) return null;
 
-  // Build prefix/suffix with a fresh range so context is accurate.
   let prefix = "";
   let suffix = "";
   try {
@@ -78,15 +77,18 @@ export function buildHighlightFromSelection(
     // context is optional — highlight will still save without it
   }
 
-  return {
-    id: uid("h_"),
-    itemId,
-    color,
-    text,
-    prefix,
-    suffix,
-    createdAt: Date.now(),
-  };
+  return { id: uid("h_"), itemId, color, text, prefix, suffix, createdAt: Date.now() };
+}
+
+/** Convenience wrapper that reads the active selection. */
+export function buildHighlightFromSelection(
+  root: HTMLElement,
+  itemId: string,
+  color: HighlightColor,
+): Highlight | null {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  return buildHighlightFromRange(root, itemId, color, sel.getRangeAt(0));
 }
 
 function findRangeForHighlight(root: HTMLElement, h: Highlight): Range | null {

@@ -10,7 +10,7 @@ import { getItem, getArticleBody, getSettings, listHighlights } from "@/lib/stor
 import {
   saveSettings, saveHighlight, deleteHighlight, saveItem,
 } from "@/lib/sync";
-import { applyHighlights, buildHighlightFromSelection } from "@/lib/highlights";
+import { applyHighlights, buildHighlightFromRange } from "@/lib/highlights";
 import { safeHostname } from "@/lib/util";
 import { SettingsPopover } from "./SettingsPopover";
 import { HighlightBar } from "./HighlightBar";
@@ -88,18 +88,18 @@ export function Reader({ id }: { id: string }) {
     await saveSettings(s);
   }, []);
 
-  const onPickColor = useCallback(async (color: HighlightColor) => {
+  const onPickColor = useCallback(async (color: HighlightColor, range: Range) => {
     if (!articleRef.current || !item) return;
-    const h = buildHighlightFromSelection(articleRef.current, item.id, color);
+    const h = buildHighlightFromRange(articleRef.current, item.id, color, range);
     if (!h) return;
     await saveHighlight(h);
     setHighlights((prev) => [...prev, h]);
     window.getSelection()?.removeAllRanges();
   }, [item]);
 
-  const onCopy = useCallback(() => {
-    const sel = window.getSelection()?.toString() ?? "";
-    if (sel) navigator.clipboard?.writeText(sel);
+  const onCopy = useCallback((range: Range) => {
+    const text = range.toString();
+    if (text) navigator.clipboard?.writeText(text);
     window.getSelection()?.removeAllRanges();
   }, []);
 
