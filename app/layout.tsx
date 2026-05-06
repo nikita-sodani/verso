@@ -6,12 +6,21 @@ import { SyncBoot } from "@/components/SyncBoot";
 export const metadata: Metadata = {
   title: "Verso — A calm, intelligent reading space",
   description:
-    "A Kindle-style reading app for the internet. Paste any article or upload a PDF — read, highlight, and remember what matters.",
-  metadataBase: new URL("https://verso.app"),
+    "A Kindle-style reader for the web. Paste any article or upload a PDF — read, highlight, and remember what matters.",
+  metadataBase: new URL("https://read-with-verso.vercel.app"),
   openGraph: {
-    title: "Verso",
-    description: "A calm, intelligent reading space for the internet.",
+    title: "Verso — A calm, intelligent reading space",
+    description:
+      "A Kindle-style reader for the web. Paste any article or upload a PDF — read, highlight, and remember what matters.",
+    url: "https://read-with-verso.vercel.app",
     type: "website",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Verso" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Verso — A calm, intelligent reading space",
+    description:
+      "A Kindle-style reader for the web. Paste any article or upload a PDF — read, highlight, and remember what matters.",
   },
 };
 
